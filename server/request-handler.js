@@ -63,35 +63,72 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
+
+
   if (request.url === '/classes/messages') {
 
     // body and results variables are for the 'GET' method
-    var body = {};
-    var results = [];
-    body.results = results;
-    
     if (request.method === 'GET') {
+      var body = {};
+      body.results = [];
+      
       console.log('GET method');
+      var contents = fs.readFileSync('messageStorage.json', 'utf8');
+      // take out the last comma
+      contents = '[' + contents.slice(0, -1) + ']';
+
+      var contentAsArrObj = JSON.parse(contents);
+
+      body.results = contentAsArrObj;
+
+      console.log(contentAsArrObj);
+      console.log(Array.isArray(contentAsArrObj));
+
+      //console.log(body);
+
+      statusCode = 200;
+      headers['Content-Type'] = 'text/plain';
+      response.writeHead(statusCode, headers);
+      //response.end(JSON.stringify(body));
+      response.end(JSON.stringify(body));
     }
 
     if (request.method === 'POST') {
-      //console.log('POST method', request);
-      // var postRequestData = [];
-      var chunkString = '';
 
       request.on('error', function(err) {
         console.error(err);
       });
       request.on('data', function(chunk) {
+        var bodyObj = {};
+        var results = [];
+        bodyObj.results = results;     
+
+        var chunkString = '';
+
         chunkString += chunk;
+
+
+        //console.log(chunkString);
         // postRequestData.push(chunk); 
+
+        fs.appendFileSync('messageStorage.json', (chunkString + ','));
+        bodyObj.results.push(chunkString);
+
+        console.log(bodyObj);
+
+        statusCode = 201;
+        headers['Content-Type'] = 'text/plain';
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify(bodyObj));
+
       });
       request.on('end', function() {
+        /* 
         //console.log(postRequestData);
         chunkString = chunkString.replace(/\+/g, ' ' );
         // console.log(chunkString);
         // postRequestData = buffer.Buffer.concat(postRequestData).toString();
-        // 'username=username123&text=text+123+message&roomname=lobby'
+        // 'username=username123&text=text+123message&roomname=lobby'
         var reqDataArr = chunkString.split('&');
         var reqDataObj = {};
 
@@ -101,10 +138,21 @@ var requestHandler = function(request, response) {
         }
         // console.log(JSON.stringify(reqDataObj));
         body.results.push(reqDataObj);
-        console.log(JSON.stringify(reqDataObj));
+        
+        console.log(JSON.stringify(body.results));
         // // {"username":"username123","text":"text+123+message","roomname":"lobby"}
+        
+        //appends to file
         fs.appendFileSync('messageStorage.json', JSON.stringify(reqDataObj));
 
+        console.log(JSON.stringify(body));
+        
+        statusCode = 201;
+        headers['Content-Type'] = 'text/plain';
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify(body.results));
+
+        */
       });
 
       statusCode = 201;
@@ -113,12 +161,12 @@ var requestHandler = function(request, response) {
     statusCode = 404;
   }
 
-  headers['Content-Type'] = 'text/plain';
+  // headers['Content-Type'] = 'text/plain';
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
 
-  response.writeHead(statusCode, headers);
+  // response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -128,8 +176,8 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   //response.end('Hello, World!');
-  // console.log(JSON.stringify(body));
-  response.end(JSON.stringify(body));
+  //console.log(JSON.stringify(body));
+  //response.end(JSON.stringify(body));
 };
 
 module.exports.requestHandler = requestHandler;

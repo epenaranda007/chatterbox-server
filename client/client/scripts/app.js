@@ -61,9 +61,10 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      data: { order: '-createdAt' },
-      contentType: 'application/json',
+      // data: { order: '-createdAt' },
+      // contentType: 'application/json',
       success: function(data) {
+        data = JSON.parse(data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
