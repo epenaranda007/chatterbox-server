@@ -72,17 +72,17 @@ var requestHandler = function(request, response) {
       var body = {};
       body.results = [];
       
-      console.log('GET method');
+      //console.log('GET method');
       var contents = fs.readFileSync('messageStorage.json', 'utf8');
       // take out the last comma
-      contents = '[' + contents.slice(0, -1) + ']';
+      contents = '[' + contents.slice(0, -1) + ']'; // array string
 
-      var contentAsArrObj = JSON.parse(contents);
+      var contentAsArrObj = JSON.parse(contents); // array object
 
       body.results = contentAsArrObj;
 
-      console.log(contentAsArrObj);
-      console.log(Array.isArray(contentAsArrObj));
+      // console.log(contentAsArrObj);
+      // console.log(Array.isArray(contentAsArrObj));
 
       //console.log(body);
 
@@ -106,7 +106,7 @@ var requestHandler = function(request, response) {
         var chunkString = '';
 
         chunkString += chunk;
-
+        console.log(chunkString);
 
         //console.log(chunkString);
         // postRequestData.push(chunk); 
@@ -114,7 +114,7 @@ var requestHandler = function(request, response) {
         fs.appendFileSync('messageStorage.json', (chunkString + ','));
         bodyObj.results.push(chunkString);
 
-        console.log(bodyObj);
+        // console.log(bodyObj);
 
         statusCode = 201;
         headers['Content-Type'] = 'text/plain';
