@@ -30,6 +30,7 @@ var defaultCorsHeaders = {
 };
 
 var fs = require('fs');
+var buffer = require('buffer');
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -75,38 +76,48 @@ var requestHandler = function(request, response) {
 
     if (request.method === 'POST') {
       //console.log('POST method', request);
-      var postRequestData = [];
+      // var postRequestData = [];
+      var chunkString = '';
 
       request.on('error', function(err) {
         console.error(err);
-      }).on('data', function(chunk) {
-        postRequestData.push(chunk);
-      }).on('end', function() {
-        postRequestData = Buffer.concat(postRequestData).toString();
+      });
+      request.on('data', function(chunk) {
+        chunkString += chunk;
+        // postRequestData.push(chunk); 
+      });
+      request.on('end', function() {
+        //console.log(postRequestData);
+        chunkString = chunkString.replace(/\+/g, ' ' );
+        // console.log(chunkString);
+        // postRequestData = buffer.Buffer.concat(postRequestData).toString();
         // 'username=username123&text=text+123+message&roomname=lobby'
-        var reqDataArr = postRequestData.split('&');
+        var reqDataArr = chunkString.split('&');
         var reqDataObj = {};
 
         for (var i = 0; i < reqDataArr.length; i++) {
           var tempArray = reqDataArr[i].split('=');
           reqDataObj[tempArray[0]] = tempArray[1];
         }
+        // console.log(JSON.stringify(reqDataObj));
+        body.results.push(reqDataObj);
         console.log(JSON.stringify(reqDataObj));
-        // {"username":"username123","text":"text+123+message","roomname":"lobby"}
-
+        // // {"username":"username123","text":"text+123+message","roomname":"lobby"}
         fs.appendFileSync('messageStorage.json', JSON.stringify(reqDataObj));
 
       });
-      // request.on('data', function(data) {
-      //   console.log(data);
-      // });
+
+      statusCode = 201;
     }
+  } else {
+    statusCode = 404;
   }
 
   headers['Content-Type'] = 'text/plain';
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
+
   response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
@@ -117,6 +128,7 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   //response.end('Hello, World!');
+  // console.log(JSON.stringify(body));
   response.end(JSON.stringify(body));
 };
 
