@@ -93,6 +93,9 @@ var requestHandler = function(request, response) {
         }
         console.log(JSON.stringify(reqDataObj));
         // {"username":"username123","text":"text+123+message","roomname":"lobby"}
+
+        fs.appendFileSync('messageStorage.json', JSON.stringify(reqDataObj));
+
       });
       // request.on('data', function(data) {
       //   console.log(data);
