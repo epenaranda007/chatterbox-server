@@ -64,25 +64,35 @@ var requestHandler = function(request, response) {
   // other than plain text, like JSON or HTML.
   if (request.url === '/classes/messages') {
 
+    // body and results variables are for the 'GET' method
+    var body = {};
+    var results = [];
+    body.results = results;
     
     if (request.method === 'GET') {
-      var body = {};
-      var results = [];
-      body.results = results;
       console.log('GET method');
     }
 
     if (request.method === 'POST') {
       //console.log('POST method', request);
+      var postRequestData = [];
+
       request.on('error', function(err) {
         console.error(err);
       }).on('data', function(chunk) {
-        body.push(chunk);
+        postRequestData.push(chunk);
       }).on('end', function() {
-        // body = Buffer.concat(body).toString();
-        body = Buffer.concat(body).toString();
-        console.log(JSON.parse(body));
-        // username=username123&text=text+123+message&roomname=lobby
+        postRequestData = Buffer.concat(postRequestData).toString();
+        // 'username=username123&text=text+123+message&roomname=lobby'
+        var reqDataArr = postRequestData.split('&');
+        var reqDataObj = {};
+
+        for (var i = 0; i < reqDataArr.length; i++) {
+          var tempArray = reqDataArr[i].split('=');
+          reqDataObj[tempArray[0]] = tempArray[1];
+        }
+        console.log(JSON.stringify(reqDataObj));
+        // {"username":"username123","text":"text+123+message","roomname":"lobby"}
       });
       // request.on('data', function(data) {
       //   console.log(data);
