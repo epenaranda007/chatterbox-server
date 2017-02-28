@@ -29,6 +29,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var fs = require('fs');
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -46,6 +48,10 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
+
+
+  // console.log(body); // expecting a bunch of array objects???
+
   // The outgoing status.
   var statusCode = 200;
 
@@ -56,6 +62,34 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
+  if (request.url === '/classes/messages') {
+
+    
+    if (request.method === 'GET') {
+      var body = {};
+      var results = [];
+      body.results = results;
+      console.log('GET method');
+    }
+
+    if (request.method === 'POST') {
+      //console.log('POST method', request);
+      request.on('error', function(err) {
+        console.error(err);
+      }).on('data', function(chunk) {
+        body.push(chunk);
+      }).on('end', function() {
+        // body = Buffer.concat(body).toString();
+        body = Buffer.concat(body).toString();
+        console.log(JSON.parse(body));
+        // username=username123&text=text+123+message&roomname=lobby
+      });
+      // request.on('data', function(data) {
+      //   console.log(data);
+      // });
+    }
+  }
+
   headers['Content-Type'] = 'text/plain';
 
   // .writeHead() writes to the request line and headers of the response,
@@ -69,7 +103,10 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  //response.end('Hello, World!');
+  response.end(JSON.stringify(body));
 };
 
 module.exports.requestHandler = requestHandler;
+
+
