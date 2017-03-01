@@ -47,7 +47,7 @@ var app = {
       success: function (data) {
         // Clear messages input
         app.$message.val('');
-        console.log('success post');
+        
         // Trigger a fetch to update the messages, pass true to animate
         app.fetch();
       },
@@ -65,7 +65,7 @@ var app = {
       // contentType: 'application/json',
       success: function(data) {
         data = JSON.parse(data);
-        console.log('after submit', data);
+        
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 

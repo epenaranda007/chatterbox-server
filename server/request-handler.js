@@ -78,7 +78,7 @@ var requestHandler = function(request, response) {
       contents = '[' + contents.slice(0, -1) + ']'; // array string
 
       var contentAsArrObj = JSON.parse(contents); // array object
-
+      contentAsArrObj.reverse();
       body.results = contentAsArrObj;
 
       // console.log(contentAsArrObj);
@@ -155,10 +155,12 @@ var requestHandler = function(request, response) {
         */
       });
 
-      statusCode = 201;
     }
   } else {
-    statusCode = 404;
+    statusCode = 404;        
+    headers['Content-Type'] = 'text/plain';
+    response.writeHead(statusCode, headers);
+    response.end();
   }
 
   // headers['Content-Type'] = 'text/plain';
